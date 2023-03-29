@@ -1,5 +1,5 @@
 // storage for book objects
-let myLibrary = [];
+let library = [];
 
 // constructor of book objects
 function Book(title, author, pages, isRead) {
@@ -8,70 +8,74 @@ function Book(title, author, pages, isRead) {
     this.pages = pages;
     this.isRead = isRead;
     this.info = function() {
-        let infos = [title, author, pages, isRead];
-        return infos;
+        return [title, author, pages, isRead];
     }
 }
+
+// books for testing
+const book2 = new Book("Kuba", "Rzepka", 290, false);
+const book1 = new Book("Maria", "Olga", 20, false);
 
 // function that lets u add book to library
 function addBookToLibrary(book) {
-    let bookInfo = book.info();
-    myLibrary.push(bookInfo);
+    library.push(book.info());
     return;
 }
 
-// one book for testing
-myLibrary[0] = new Book("Kuba", "Rzepka", 290, false);
-myLibrary[1] = new Book("Maria", "Olga", 20, false);
-
-// function that adds book to a table
-const libraryTable = document.querySelector("table");
-
-function addBookToTable(book) {
-    let bookRow = libraryTable.insertRow(-1);
-    let cell1 = bookRow.insertCell(0);
-    let cell2 = bookRow.insertCell(1);
-    let cell3 = bookRow.insertCell(2);
-    let cell4 = bookRow.insertCell(3);
-    let cell5 = bookRow.insertCell(4);
-    cell1.innerHTML = `${book.title}`;
-    cell2.innerHTML = `${book.author}`;
-    cell3.innerHTML = `${book.pages}`;
-    cell4.innerHTML = `${book.isRead}`;
-    let removeBtn = document.createElement("button");
-    removeBtn.textContent = "Remove";
-    removeBtn.dataset.index = `${myLibrary.indexOf(book)}`;
-    cell5.appendChild(removeBtn);
-}
-
-
-
-// function that displays the books in form of a table
-function displayBooks() {
-    for (const book of myLibrary) {
-        addBookToTable(book);
+// button that brings up a form
+function visibilityToggle(element) {
+    if (element.style.display === "none") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
     }
 }
 
-// displaying available books right away
-displayBooks();
+const addBookForm = document.querySelector(".add_book_form");
+const addBookButton = document.querySelector(".add_book_button");
 
-// button that brings up a form for adding a book
-const addBookBtn = document.querySelector(".addBook");
-addBookBtn.addEventListener("click", function() {
-    const form = document.querySelector("form");
-    form.style.display = "block";
-})
+addBookButton.addEventListener("click", () => {
+    visibilityToggle(addBookForm);
+});
 
-// submit button reads the info in form and creates a book object and adds it to the table and clears form inputs
-document.querySelector(".submitBtn").addEventListener("click", function(event) {
-    event.preventDefault();
-    let myBook = new Book(`${(document.querySelector("#title").value)}`, `${(document.querySelector("#author").value)}`,
-                            `${(document.querySelector("#pages").value)}`, `${(document.querySelector("#read").value)}`);
-    addBookToTable(myBook);
-    addBookToLibrary(myBook)
-    const form = document.querySelector("form");
-    form.style.display = "none";
-    document.querySelector("#title").value = document.querySelector("#author").value = document.querySelector("#pages").value = 
-                                             document.querySelector("#read").value = null;
-})
+// submit button adds a book to a library array
+const submitAddBookFormButton = document.querySelector(".form_submit_button");
+
+function readFormInfo() {
+    let bookTitle = document.querySelector("#book_title").value;
+    let bookAuthor = document.querySelector("#book_author").value;
+    let bookPages = document.querySelector("#book_pages").value;
+    let bookIsRead = document.querySelector("#book_is_read").checked;
+    return [bookTitle, bookAuthor, bookPages, bookIsRead];
+}
+
+function createBookObject(array) {
+    return new Book(array[0], array[1], array[2], array[3]);
+}
+
+// after sumbitting, new book is added to the library table
+const libraryTable = document.querySelector(".table_library");
+
+// adds a row with columns, everything gets ID
+function addABookToTable(book) {
+    let bookInfo = book.info();
+    let row = document.createElement("tr");
+    row.setAttribute("id", `${library.length}`);
+    for (let i=0; i<4; i++) {
+        let column = document.createElement("th");
+        column.textContent = `${bookInfo[i]}`;
+        row.appendChild(column);
+    }
+    libraryTable.appendChild(row);
+}
+
+function populateARow(book) {
+    let bookInfo = book.info();
+}
+
+submitAddBookFormButton.addEventListener("click", () => {
+    let book = createBookObject(readFormInfo());
+    addBookToLibrary(book);
+    addABookToTable(book);
+});
+
